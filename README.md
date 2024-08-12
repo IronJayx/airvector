@@ -1,3 +1,5 @@
+# Small package to vectorize a blob storage of videos and images [WIP]
+
 Set values in .env
 ```
 # OpenAI

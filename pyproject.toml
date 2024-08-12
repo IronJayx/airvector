@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "airvector"
+version = "0.1.0"
+description = ""
+authors = ["IronJayx <jeremie.feron@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+loguru = "^0.7.2"
+azure-storage-blob = "^12.20.0"
+python-dotenv = "^1.0.1"
+opencv-python = "^4.10.0.84"
+openai = "^1.35.5"
+pillow = "^10.4.0"
+urljoin = "^1.0.0"
+pinecone-client = "^5.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

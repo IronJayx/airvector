@@ -6,7 +6,7 @@ authors = ["IronJayx <jeremie.feron@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<=3.13"
 loguru = "^0.7.2"
 azure-storage-blob = "^12.20.0"
 python-dotenv = "^1.0.1"

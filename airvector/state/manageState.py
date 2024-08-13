@@ -10,19 +10,24 @@ RAW_CONTAINER = os.environ.get("AZURE_RAW_STORAGE_CONTAINER_NAME")
 STATE_CONTAINER = os.environ.get("AZURE_STATE_STORAGE_CONTAINER_NAME")
 
 
-def set_file_pattern(name: str):
-    return f"source=*/stage={name}/*"
+def set_file_pattern(source: str, stage: str):
+    return f"source={source}/stage={stage}/*"
 
 
-def fetch_unprocessed(storage_client: StorageClient, inbound: str, outbound: str):
-    inbound_pattern = set_file_pattern(inbound)
-    outbound_pattern = set_file_pattern(outbound)
+def fetch_unprocessed(
+    storage_client: StorageClient,
+    inbound_stage: str,
+    outbound_stage: str,
+    source: str = "*",
+):
+    inbound_pattern = set_file_pattern(source, inbound_stage)
+    outbound_pattern = set_file_pattern(source, outbound_stage)
 
-    logger.info(f"Fetching for {inbound} vs. {outbound}")
+    logger.info(f"Fetching for {inbound_stage} vs. {outbound_stage}")
 
     # special case for very first step
 
-    if inbound == "raw":
+    if inbound_stage == "raw":
         return storage_client.read_raw(container=RAW_CONTAINER, pattern=inbound_pattern)
 
     # base case

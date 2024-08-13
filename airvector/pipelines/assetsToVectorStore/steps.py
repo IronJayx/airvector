@@ -87,9 +87,7 @@ class AssetsToVectors:
                 container=frame_entry["container"], blob_name=frame_entry["path"]
             )
 
-            frame_entries.extend(
-                self.preprocess(frame_entry, self.file_upload_container)
-            )
+            frame_entries.extend(self.preprocess(frame_entry))
 
         return frame_entries
 

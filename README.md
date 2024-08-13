@@ -26,10 +26,26 @@ PINECONE_API_KEY=""
 ```
 
 
-Run example
+Install
 ```
 poetry install
 poetry shell
+```
 
-python airvector/pipelines/assetsToVectorStore/runner.py
+Run the example
+```
+from airvector.pipelines.Pipeline import Pipeline
+
+# Run the pipeline
+pipeline = Pipeline(
+    storage_name="source-azure-blob-storage",
+    pipeline_name="asset-to-vector-store",
+    pipeline_args={
+        "vision_model": "gptVision",
+        "embedding_model": "text-embedding-3-large",
+    },
+    source="airvector-raw",  # source blob container
+)
+pipeline.run()
+
 ```

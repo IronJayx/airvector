@@ -13,13 +13,17 @@ class StateManager:
     def __init__(
         self,
         storage_client: StorageClient,
-        state_container: str,
         source_container: str,
     ) -> None:
         self.storage_client = storage_client
-
-        self.state_container = state_container
         self.source_container = source_container
+
+        self.state_container = os.getenv("AIRVECTOR_STATE_STORAGE_CONTAINER_NAME")
+
+        if not self.state_container:
+            raise Exception(
+                "AIRVECTOR_STATE_STORAGE_CONTAINER_NAME needs to be set in .env"
+            )
 
     def set_file_pattern(self, stage: str):
         return f"source={self.source_container}/stage={stage}/*"

@@ -15,12 +15,10 @@ class Pipeline:
         pipeline_name: str,
         pipeline_args: dict,
         source_container: str,
-        state_container: str,
     ):
         self.storage_client = StorageClient(storage_name)
         self.state = StateManager(
             storage_client=self.storage_client,
-            state_container=state_container,
             source_container=source_container,
         )
         self.source = source_container

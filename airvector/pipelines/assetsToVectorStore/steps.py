@@ -26,7 +26,7 @@ class AssetsToVectors:
 
         if not self.file_upload_container:
             logger.error(
-                "AZURE_FILE_STORAGE_CONTAINER_NAME needs to be set in .env to store files"
+                "AIRVECTOR_FILE_STORAGE_CONTAINER_NAME needs to be set in .env to store files"
             )
 
     def make_id(self, field: str):

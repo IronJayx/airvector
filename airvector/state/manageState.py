@@ -2,11 +2,13 @@ import os
 import json
 import tempfile
 from loguru import logger
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from airvector.clients.storage.client import StorageClient
 
 
-RAW_CONTAINER = os.environ.get("AZURE_RAW_STORAGE_CONTAINER_NAME")
 STATE_CONTAINER = os.environ.get("AZURE_STATE_STORAGE_CONTAINER_NAME")
 
 
@@ -18,7 +20,7 @@ def fetch_unprocessed(
     storage_client: StorageClient,
     inbound_stage: str,
     outbound_stage: str,
-    source: str = "*",
+    source: str,
 ):
     inbound_pattern = set_file_pattern(source, inbound_stage)
     outbound_pattern = set_file_pattern(source, outbound_stage)
@@ -28,7 +30,7 @@ def fetch_unprocessed(
     # special case for very first step
 
     if inbound_stage == "raw":
-        return storage_client.read_raw(container=RAW_CONTAINER, pattern=inbound_pattern)
+        return storage_client.read_raw(container=source, pattern=inbound_pattern)
 
     # base case
 

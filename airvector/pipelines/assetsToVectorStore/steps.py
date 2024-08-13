@@ -1,6 +1,9 @@
 import os
 import tempfile
 from loguru import logger
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from airvector.transform.VideoToImages import video_to_images
 from airvector.transform.OpenAIVision import describeImage

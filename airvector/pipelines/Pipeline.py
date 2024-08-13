@@ -13,7 +13,7 @@ class Pipeline:
         storage_name: str,
         pipeline_name: str,
         pipeline_args: dict,
-        source: str = "*",
+        source: str,
     ):
         self.storage_client = StorageClient(storage_name)
         self.source = source

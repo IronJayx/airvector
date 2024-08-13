@@ -1,6 +1,9 @@
 import os
 from openai import OpenAI
 from loguru import logger
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from airvector.utils.prompts import Prompts
 

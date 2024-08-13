@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from airvector.transform.VideoToImages import video_to_images
-from airvector.transform.OpenAIVision import describeImage
+from airvector.transform.OpenAiAzureVision import describeImage
 from airvector.transform.OpenAiAzureEmbedding import get_embedding
 from airvector.transform.ComputeImageLayout import compute_layout
 from airvector.utils.hasher import hash_text

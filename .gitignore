@@ -5,3 +5,5 @@
 .env
 
 airvector/utils/prompts.py
+
+poetry.lock

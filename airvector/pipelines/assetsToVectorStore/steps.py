@@ -18,9 +18,11 @@ VideoFormats = {"mp4", "avi", "mov"}
 
 class AssetsToVectors:
 
-    def __init__(self, storage_client: StorageClient) -> None:
+    def __init__(
+        self, storage_client: StorageClient, file_upload_container: str
+    ) -> None:
         self.storage_client = storage_client
-        self.file_upload_container = os.environ.get("AZURE_FILE_STORAGE_CONTAINER_NAME")
+        self.file_upload_container = file_upload_container
 
         if not self.file_upload_container:
             logger.error(

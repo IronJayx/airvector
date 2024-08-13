@@ -1,6 +1,6 @@
 from loguru import logger
 
-from airvector.state.manageState import fetch_unprocessed, upload_state_file
+from airvector.state.manageState import StateManager
 from airvector.pipelines.assetsToVectorStore.pipeline import AssetsToVectorPipeline
 from airvector.clients.storage.client import StorageClient
 
@@ -8,15 +8,22 @@ AvailablePipelines = {"asset-to-vector-store": AssetsToVectorPipeline}
 
 
 class Pipeline:
+
     def __init__(
         self,
         storage_name: str,
         pipeline_name: str,
         pipeline_args: dict,
-        source: str,
+        source_container: str,
+        state_container: str,
     ):
         self.storage_client = StorageClient(storage_name)
-        self.source = source
+        self.state = StateManager(
+            storage_client=self.storage_client,
+            state_container=state_container,
+            source_container=source_container,
+        )
+        self.source = source_container
 
         self.steps = self.set_pipeline(pipeline_name, pipeline_args)
 
@@ -30,6 +37,7 @@ class Pipeline:
             storage_client=self.storage_client,
             vision_model=pipeline_args.get("vision_model"),
             embedding_model=pipeline_args.get("embedding_model"),
+            file_upload_container=pipeline_args.get("file_upload_container"),
         )
 
     def update_state(self, step: dict, result: list):
@@ -38,26 +46,22 @@ class Pipeline:
 
         if step.get("multiple_outputs_per_entry"):
             for idx, sub_entry in enumerate(result):
-                upload_state_file(
-                    storage_client=self.storage_client,
+                self.state.upload_state_file(
                     entry=sub_entry,
                     stage=step["upload_stage"],
                     suffix=idx,
                 )
         else:
-            upload_state_file(
-                storage_client=self.storage_client,
+            self.state.upload_state_file(
                 entry=result,
                 stage=step["upload_stage"],
             )
 
     def run_step(self, step_name):
         step = self.steps[step_name]
-        unprocessed_data = fetch_unprocessed(
-            storage_client=self.storage_client,
+        unprocessed_data = self.state.fetch_unprocessed(
             inbound_stage=step.get("inbound"),
             outbound_stage=step.get("outbound"),
-            source=self.source,
         )
 
         if not unprocessed_data:

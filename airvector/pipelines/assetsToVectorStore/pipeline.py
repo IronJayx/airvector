@@ -9,8 +9,11 @@ class AssetsToVectorPipeline:
         storage_client: StorageClient,
         vision_model: str = "gptVision",
         embedding_model: str = "text-embedding-3-large",
+        file_upload_container: str = "airvector-files",
     ):
-        pipeline_processor = AssetsToVectors(storage_client=storage_client)
+        pipeline_processor = AssetsToVectors(
+            storage_client=storage_client, file_upload_container=file_upload_container
+        )
 
         return {
             "step_1": {

@@ -123,4 +123,6 @@ class AssetsToVectors:
             source_embedding_field="embedding",
         )
 
-        pinecone.upsert(index_name=f"{index_name}-{embedding_model}", records=records)
+        return pinecone.upsert(
+            index_name=f"{index_name}-{embedding_model}", records=records
+        )

@@ -42,4 +42,4 @@ class DatabaseClient:
                 index_name=index_name, dimensions=self.embeddings_dimensions
             )
 
-        self.db.upsert(index_name=index_name, docs=records)
+        return self.db.upsert(index_name=index_name, docs=records)

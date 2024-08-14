@@ -66,6 +66,7 @@ class Pipeline:
             logger.info(f"All processed for {step_name}")
             return
 
+        result = None
         if step.get("batch_process"):
             # If batch_process is True, process all data at once
             result = step["function"](unprocessed_data)
@@ -76,6 +77,11 @@ class Pipeline:
                 result = step["function"](entry)
                 self.update_state(step=step, result=result)
 
+        return result
+
     def run(self):
+        last_message = "Pipeline did not execute"
         for step_name in self.steps.keys():
-            self.run_step(step_name)
+            last_message = self.run_step(step_name)
+
+        return last_message

@@ -46,5 +46,15 @@ class PineconeClient:
         return {"id": id, "values": value, "metadata": record}
 
     def upsert(self, index_name: str, docs: list):
+
         index = self.pc.Index(index_name)
+
+        total_count_before = int(index.describe_index_stats()["total_vector_count"])
+
         index.upsert(docs)
+
+        total_count_after = int(index.describe_index_stats()["total_vector_count"])
+
+        message = f"Inserted {total_count_after-total_count_before} new elements in index {index_name}. Total count is now {total_count_after}"
+
+        return message

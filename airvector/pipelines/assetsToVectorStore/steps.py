@@ -57,6 +57,10 @@ class AssetsToVectors:
             output_path=local_path,
         )
 
+        entry["inbound_filetype"] = "image"
+        entry["inbound_container"] = container
+        entry["inbound_filepath"] = path
+
         if is_image:
             if "image_url" not in entry:
                 entry["image_url"] = entry["url"]
@@ -97,7 +101,9 @@ class AssetsToVectors:
         return frame_entries
 
     def vision(self, entry: dict):
-        description = describeImage(image_url=entry["image_url"])
+        description = describeImage(
+            image_url=entry["image_url"], image_string=entry["inbound_filepath"]
+        )
         return {
             **entry,
             "vision_description": description,

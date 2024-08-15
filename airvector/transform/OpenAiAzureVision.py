@@ -7,7 +7,7 @@ load_dotenv()
 from airvector.utils.prompts import Prompts
 
 
-def describeImage(image_url: str) -> list[float]:
+def describeImage(image_url: str, image_string: str) -> list[float]:
     client = AzureOpenAI(
         api_key=os.getenv("AZURE_OPENAI_API_KEY_EMBEDDINGS"),
         api_version="2024-02-01",
@@ -24,7 +24,7 @@ def describeImage(image_url: str) -> list[float]:
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "Describe this picture:"},
+                    {"type": "text", "text": f"Image name: {image_string}"},
                     {"type": "image_url", "image_url": {"url": image_url}},
                 ],
             },

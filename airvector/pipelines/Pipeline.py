@@ -15,6 +15,7 @@ class Pipeline:
         pipeline_name: str,
         pipeline_args: dict,
         source_container: str,
+        source_blob_pattern: str = "*",
     ):
         self.storage_client = StorageClient(storage_name)
         self.state = StateManager(
@@ -22,6 +23,7 @@ class Pipeline:
             source_container=source_container,
         )
         self.source = source_container
+        self.source_blob_pattern = source_blob_pattern
 
         self.steps = self.set_pipeline(pipeline_name, pipeline_args)
 
@@ -46,34 +48,38 @@ class Pipeline:
             for idx, sub_entry in enumerate(result):
                 self.state.upload_state_file(
                     entry=sub_entry,
-                    stage=step["upload_stage"],
+                    stage=step["outbound"],
                     suffix=idx,
                 )
         else:
             self.state.upload_state_file(
                 entry=result,
-                stage=step["upload_stage"],
+                stage=step["outbound"],
             )
 
     def run_step(self, step_name):
         step = self.steps[step_name]
-        unprocessed_data = self.state.fetch_unprocessed(
-            inbound_stage=step.get("inbound"),
-            outbound_stage=step.get("outbound"),
-        )
 
-        if not unprocessed_data:
+        if step_name == "raw":
+            data = self.state.fetch_raw(blob_pattern=self.source_blob_pattern)
+        else:
+            data = self.state.fetch_unprocessed(
+                inbound_stage=step.get("inbound"),
+                outbound_stage=step.get("outbound"),
+            )
+
+        if not data:
             logger.info(f"All processed for {step_name}")
             return
 
         result = None
         if step.get("batch_process"):
             # If batch_process is True, process all data at once
-            result = step["function"](unprocessed_data)
+            result = step["function"](data)
             self.update_state(step=step, result=result)
         else:
             # Process each entry individually
-            for entry in unprocessed_data:
+            for entry in data:
                 result = step["function"](entry)
                 self.update_state(step=step, result=result)
 

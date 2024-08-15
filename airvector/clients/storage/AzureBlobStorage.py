@@ -60,6 +60,7 @@ class AzureBlobStorage:
         return urljoin(self.storage_base_url, f"{container}/{blob_name}")
 
     def read_raw(self, container: str, pattern: str) -> list:
+        import fnmatch
 
         container_client = self.set_container(container)
         blobs = container_client.list_blobs()
@@ -68,13 +69,14 @@ class AzureBlobStorage:
         for blob in blobs:
             blob_name = blob.name
 
-            results.append(
-                {
-                    "container": container,
-                    "path": blob_name,
-                    "url": self.make_url(container=container, blob_name=blob_name),
-                }
-            )
+            if fnmatch.fnmatch(blob_name, pattern):
+                results.append(
+                    {
+                        "container": container,
+                        "path": blob_name,
+                        "url": self.make_url(container=container, blob_name=blob_name),
+                    }
+                )
 
         return results
 

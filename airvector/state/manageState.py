@@ -28,6 +28,14 @@ class StateManager:
     def set_file_pattern(self, stage: str):
         return f"source={self.source_container}/stage={stage}/*"
 
+    def fetch_raw(
+        self,
+        blob_pattern: str,
+    ):
+        return self.storage_client.read_raw(
+            container=self.source_container, pattern=blob_pattern
+        )
+
     def fetch_unprocessed(
         self,
         inbound_stage: str,
@@ -37,15 +45,6 @@ class StateManager:
         outbound_pattern = self.set_file_pattern(outbound_stage)
 
         logger.info(f"Fetching for {inbound_stage} vs. {outbound_stage}")
-
-        # special case for very first step
-
-        if inbound_stage == "raw":
-            return self.storage_client.read_raw(
-                container=self.source_container, pattern=inbound_pattern
-            )
-
-        # base case
 
         inbound_stream = self.storage_client.read_jsonl(
             container=self.state_container, pattern=inbound_pattern

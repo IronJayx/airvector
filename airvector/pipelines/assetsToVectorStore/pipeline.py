@@ -16,18 +16,16 @@ class AssetsToVectorPipeline:
         )
 
         return {
-            "step_1": {
+            "raw": {
                 "inbound": "raw",
                 "outbound": "parsed",
                 "function": lambda entry: pipeline_processor.ingest(entry),
-                "upload_stage": "parsed",
                 "upload_state": True,
             },
             "step_2": {
                 "inbound": "parsed",
                 "outbound": "preprocessed",
                 "function": lambda entry: pipeline_processor.preprocess(entry),
-                "upload_stage": "preprocessed",
                 "multiple_outputs_per_entry": True,
                 "upload_state": True,
             },
@@ -35,14 +33,12 @@ class AssetsToVectorPipeline:
                 "inbound": "preprocessed",
                 "outbound": f"captioned/model={vision_model}",
                 "function": lambda entry: pipeline_processor.vision(entry),
-                "upload_stage": f"captioned/model={vision_model}",
                 "upload_state": True,
             },
             "step_4": {
                 "inbound": f"captioned/model={vision_model}",
                 "outbound": f"vectorized/model={embedding_model}",
                 "function": lambda entry: pipeline_processor.vectorize(entry),
-                "upload_stage": f"vectorized/model={embedding_model}",
                 "upload_state": True,
             },
             "step_5": {

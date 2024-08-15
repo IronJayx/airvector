@@ -129,14 +129,18 @@ class AssetsToVectors:
                 return []
 
     def vision(self, entry: dict):
-        description = describeImage(
-            image_url=entry["image_url"], image_string=entry["inbound_filepath"]
-        )
-        return {
-            **entry,
-            "vision_description": description,
-            "parent_airvector_id": entry["airvector_id"],
-        }
+        try:
+            description = describeImage(
+                image_url=entry["image_url"], image_string=entry["inbound_filepath"]
+            )
+            return {
+                **entry,
+                "vision_description": description,
+                "parent_airvector_id": entry["airvector_id"],
+            }
+        except Exception as e:
+            logger.error(f"Vision failed on {entry['image_url']}: {e}")
+            return None
 
     def vectorize(self, entry: dict):
         embedding = get_embedding(text=entry["vision_description"])

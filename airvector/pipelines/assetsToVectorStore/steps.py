@@ -13,10 +13,11 @@ from airvector.utils.hasher import hash_text
 from airvector.clients.storage.client import StorageClient
 from airvector.clients.db.client import DatabaseClient
 
-VideoFormats = {"mp4", "avi", "mov"}
-
 
 class AssetsToVectors:
+
+    VideoFormats = {"mp4", "avi", "mov"}
+    ImageFormats = {".jpg", ".png", ".jpeg", ".avif", ".webp"}
 
     def __init__(
         self, storage_client: StorageClient, file_upload_container: str
@@ -33,6 +34,15 @@ class AssetsToVectors:
         return hash_text(field)
 
     def ingest(self, entry: dict, id_field: str = "url"):
+        entry_path = entry.get("path", "")
+
+        # Check if the path ends with an image or video format
+        if not any(
+            entry_path.lower().endswith(ext)
+            for ext in self.VideoFormats | self.ImageFormats
+        ):
+            return None
+
         file_id = self.make_id(entry[id_field])
         return {**entry, "source": entry["container"], "airvector_id": file_id}
 
@@ -44,7 +54,7 @@ class AssetsToVectors:
         path = entry["path"]
         filetype = path.split(".")[-1]
         filename = path.split("/")[-1]
-        is_image = True if filetype not in VideoFormats else False
+        is_image = True if filetype in self.ImageFormats else False
 
         # temp
         temp_dir = tempfile.mkdtemp()
@@ -69,36 +79,40 @@ class AssetsToVectors:
             entry["layout"] = compute_layout(local_path)
             return [entry]
 
-        frames = video_to_images(local_path)
+        if filetype in self.VideoFormats:
 
-        entry["container"] = self.file_upload_container
-        entry["inbound_filetype"] = "video"
-        entry["inbound_container"] = container
-        entry["inbound_filepath"] = path
-        inbound_id = entry["airvector_id"]
+            frames = video_to_images(local_path)
 
-        frame_entries = []
-        for frame_position, frame_path in frames:
-            frame_entry = entry.copy()
-            frame_entry["path"] = os.path.join(inbound_id, frame_path.split("/")[-1])
+            entry["container"] = self.file_upload_container
+            entry["inbound_filetype"] = "video"
+            entry["inbound_container"] = container
+            entry["inbound_filepath"] = path
+            inbound_id = entry["airvector_id"]
 
-            # id switch
-            frame_entry["airvector_id"] = f"{inbound_id}-{frame_position}"
-            frame_entry["parent_airvector_id"] = inbound_id
+            frame_entries = []
+            for frame_position, frame_path in frames:
+                frame_entry = entry.copy()
+                frame_entry["path"] = os.path.join(
+                    inbound_id, frame_path.split("/")[-1]
+                )
 
-            self.storage_client.upload(
-                container=self.file_upload_container,
-                local_path=frame_path,
-                blob_name=frame_entry["path"],
-            )
+                # id switch
+                frame_entry["airvector_id"] = f"{inbound_id}-{frame_position}"
+                frame_entry["parent_airvector_id"] = inbound_id
 
-            frame_entry["image_url"] = self.storage_client.make_url(
-                container=frame_entry["container"], blob_name=frame_entry["path"]
-            )
+                self.storage_client.upload(
+                    container=self.file_upload_container,
+                    local_path=frame_path,
+                    blob_name=frame_entry["path"],
+                )
 
-            frame_entries.extend(self.preprocess(frame_entry))
+                frame_entry["image_url"] = self.storage_client.make_url(
+                    container=frame_entry["container"], blob_name=frame_entry["path"]
+                )
 
-        return frame_entries
+                frame_entries.extend(self.preprocess(frame_entry))
+
+            return frame_entries
 
     def vision(self, entry: dict):
         description = describeImage(

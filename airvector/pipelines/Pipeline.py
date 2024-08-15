@@ -76,12 +76,16 @@ class Pipeline:
         if step.get("batch_process"):
             # If batch_process is True, process all data at once
             result = step["function"](data)
-            self.update_state(step=step, result=result)
+
+            if result:
+                self.update_state(step=step, result=result)
         else:
             # Process each entry individually
             for entry in data:
                 result = step["function"](entry)
-                self.update_state(step=step, result=result)
+
+                if result:
+                    self.update_state(step=step, result=result)
 
         return result
 

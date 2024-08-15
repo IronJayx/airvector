@@ -16,7 +16,7 @@ from airvector.clients.db.client import DatabaseClient
 
 class AssetsToVectors:
 
-    VideoFormats = {"mp4", "avi", "mov"}
+    VideoFormats = {".mp4", ".avi", ".mov"}
     ImageFormats = {".jpg", ".png", ".jpeg", ".avif", ".webp"}
 
     def __init__(
@@ -52,9 +52,17 @@ class AssetsToVectors:
         """
         container = entry["container"]
         path = entry["path"]
-        filetype = path.split(".")[-1]
         filename = path.split("/")[-1]
-        is_image = True if filetype in self.ImageFormats else False
+        is_image = (
+            True
+            if any(path.lower().endswith(ext) for ext in self.ImageFormats)
+            else False
+        )
+        is_video = (
+            True
+            if any(path.lower().endswith(ext) for ext in self.VideoFormats)
+            else False
+        )
 
         # temp
         temp_dir = tempfile.mkdtemp()
@@ -79,7 +87,7 @@ class AssetsToVectors:
             entry["layout"] = compute_layout(local_path)
             return [entry]
 
-        if filetype in self.VideoFormats:
+        if is_video:
 
             try:
                 frames = video_to_images(local_path)
@@ -118,7 +126,7 @@ class AssetsToVectors:
 
             except Exception as e:
                 logger.error(f"Error processing video {path}: {e}")
-                return
+                return []
 
     def vision(self, entry: dict):
         description = describeImage(

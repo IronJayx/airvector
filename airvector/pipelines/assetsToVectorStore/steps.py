@@ -81,38 +81,44 @@ class AssetsToVectors:
 
         if filetype in self.VideoFormats:
 
-            frames = video_to_images(local_path)
+            try:
+                frames = video_to_images(local_path)
 
-            entry["container"] = self.file_upload_container
-            entry["inbound_filetype"] = "video"
-            entry["inbound_container"] = container
-            entry["inbound_filepath"] = path
-            inbound_id = entry["airvector_id"]
+                entry["container"] = self.file_upload_container
+                entry["inbound_filetype"] = "video"
+                entry["inbound_container"] = container
+                entry["inbound_filepath"] = path
+                inbound_id = entry["airvector_id"]
 
-            frame_entries = []
-            for frame_position, frame_path in frames:
-                frame_entry = entry.copy()
-                frame_entry["path"] = os.path.join(
-                    inbound_id, frame_path.split("/")[-1]
-                )
+                frame_entries = []
+                for frame_position, frame_path in frames:
+                    frame_entry = entry.copy()
+                    frame_entry["path"] = os.path.join(
+                        inbound_id, frame_path.split("/")[-1]
+                    )
 
-                # id switch
-                frame_entry["airvector_id"] = f"{inbound_id}-{frame_position}"
-                frame_entry["parent_airvector_id"] = inbound_id
+                    # id switch
+                    frame_entry["airvector_id"] = f"{inbound_id}-{frame_position}"
+                    frame_entry["parent_airvector_id"] = inbound_id
 
-                self.storage_client.upload(
-                    container=self.file_upload_container,
-                    local_path=frame_path,
-                    blob_name=frame_entry["path"],
-                )
+                    self.storage_client.upload(
+                        container=self.file_upload_container,
+                        local_path=frame_path,
+                        blob_name=frame_entry["path"],
+                    )
 
-                frame_entry["image_url"] = self.storage_client.make_url(
-                    container=frame_entry["container"], blob_name=frame_entry["path"]
-                )
+                    frame_entry["image_url"] = self.storage_client.make_url(
+                        container=frame_entry["container"],
+                        blob_name=frame_entry["path"],
+                    )
 
-                frame_entries.extend(self.preprocess(frame_entry))
+                    frame_entries.extend(self.preprocess(frame_entry))
 
-            return frame_entries
+                return frame_entries
+
+            except Exception as e:
+                logger.error(f"Error processing video {path}: {e}")
+                return
 
     def vision(self, entry: dict):
         description = describeImage(

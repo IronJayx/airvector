@@ -45,16 +45,15 @@ class PineconeClient:
 
         return {"id": id, "values": value, "metadata": record}
 
-    def upsert(self, index_name: str, docs: list):
-
+    def upsert(self, index_name: str, docs: list, batch_size: int = 200):
         index = self.pc.Index(index_name)
-
         total_count_before = int(index.describe_index_stats()["total_vector_count"])
 
-        index.upsert(docs)
+        for i in range(0, len(docs), batch_size):
+            chunk = docs[i : i + batch_size]
+            index.upsert(chunk)
 
         total_count_after = int(index.describe_index_stats()["total_vector_count"])
-
-        message = f"Inserted {total_count_after-total_count_before} new elements in index {index_name}. Total count is now {total_count_after}"
+        message = f"Inserted {total_count_after - total_count_before} new elements in index {index_name}. Total count is now {total_count_after}"
 
         return message

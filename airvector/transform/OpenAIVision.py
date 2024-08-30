@@ -8,7 +8,7 @@ load_dotenv()
 from airvector.utils.prompts import Prompts
 
 
-def describeImage(image_url: str):
+def describeImage(image_url: str, image_string: str):
     openai_key = os.environ.get("OPENAI_API_KEY")
 
     if not openai_key:
@@ -31,10 +31,10 @@ def describeImage(image_url: str):
             {
                 "role": "user",
                 "content": [
-                    # {
-                    #     "type": "text",
-                    #     "text": Prompts["vision-description"]["user_prompt"],
-                    # },
+                    {
+                        "type": "text",
+                        "text": f"Image name: {image_string}",
+                    },
                     {
                         "type": "image_url",
                         "image_url": {

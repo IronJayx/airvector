@@ -45,7 +45,7 @@ class PineconeClient:
 
         return {"id": id, "values": value, "metadata": record}
 
-    def upsert(self, index_name: str, docs: list, batch_size: int = 200):
+    def upsert(self, index_name: str, docs: list, batch_size: int = 100):
         index = self.pc.Index(index_name)
         total_count_before = int(index.describe_index_stats()["total_vector_count"])
 

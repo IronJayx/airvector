@@ -57,3 +57,24 @@ class PineconeClient:
         message = f"Inserted {total_count_after - total_count_before} new elements in index {index_name}. Total count is now {total_count_after}"
 
         return message
+
+    def query(
+        self,
+        index_name: str,
+        query_vector: list,
+        top_k: int = 3,
+        include_values: bool = True,
+        include_metadata: bool = True,
+        filter: dict = {},
+    ):
+        index = self.pc.Index(index_name)
+
+        results = index.query(
+            vector=query_vector,
+            top_k=top_k,
+            include_values=include_values,
+            include_metadata=include_metadata,
+            filter=filter,
+        )
+
+        return results
